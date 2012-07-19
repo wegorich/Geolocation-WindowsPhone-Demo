@@ -28,8 +28,19 @@
 
         <!--ContentPanel - place additional content here-->
         <Grid x:Name="ContentPanel" Grid.Row="1" >
-            <TextBlock Style="{StaticResource PhoneTextHugeStyle}" Text="1212"></TextBlock>
-            <CheckBox Content="CheckBox" Height="72" HorizontalAlignment="Left" Margin="12,599,0,0" Name="checkBox1" VerticalAlignment="Top" Checked="checkBox1_Checked" />
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+            </Grid.RowDefinitions>
+            <TextBlock Text="{Binding GeoCoordinate}"></TextBlock>
+            <TextBlock Grid.Row="1" Text="{Binding TimeStamp}"></TextBlock>
+            <TextBlock Grid.Row="2" Text="{Binding Status}"></TextBlock>
+            <TextBlock Grid.Row="3" Style="{StaticResource PhoneTextHugeStyle}"  Text="{Binding GeoCoordinate.Speed}"></TextBlock>
+
+            <CheckBox Grid.Row="4" IsChecked="{Binding IsCoordinateWatcherEnable,Mode=TwoWay}" Content="CheckBox" Height="72" HorizontalAlignment="Left" Margin="12,599,0,0" Name="checkBox1" VerticalAlignment="Top" />
         </Grid>
     </Grid>
  
