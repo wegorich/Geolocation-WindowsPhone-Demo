@@ -164,8 +164,8 @@ namespace Geolocation.ModelView
             if (_coordinateWatcher == null) return;
 
             _coordinateWatcher.Stop();
-            _coordinateWatcher.StatusChanged += WatcherStatusChanged;
-            _coordinateWatcher.PositionChanged += WatcherPositionChanged;
+            _coordinateWatcher.StatusChanged -= WatcherStatusChanged;
+            _coordinateWatcher.PositionChanged -= WatcherPositionChanged;
             _coordinateWatcher.Dispose();
             _coordinateWatcher = null;
         }
