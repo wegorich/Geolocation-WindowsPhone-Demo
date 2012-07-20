@@ -156,18 +156,13 @@ namespace Geolocation.ModelView
 
         private void GeoWatherStop()
         {
-            _coordinateWatcher.Stop();
+			if (_coordinateWatcher != null)
+			{
+				_coordinateWatcher.Stop();
 
-            GeoCoordinate = null;
-            TimeStamp = null;
-
-            if (_coordinateWatcher == null) return;
-
-            _coordinateWatcher.Stop();
-            _coordinateWatcher.StatusChanged -= WatcherStatusChanged;
-            _coordinateWatcher.PositionChanged -= WatcherPositionChanged;
-            _coordinateWatcher.Dispose();
-            _coordinateWatcher = null;
+				GeoCoordinate = null;
+				TimeStamp = null;
+			}
         }
 
         #endregion
