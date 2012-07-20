@@ -1,10 +1,10 @@
-﻿using Geolocation.Model;
+﻿using Geolocation.ModelView;
 
-namespace Geolocation
+namespace Geolocation.View
 {
     public partial class MainPage
     {
-        readonly GeoCoordinateWatcherViewModel _coordinate =new GeoCoordinateWatcherViewModel();
+        private readonly GeoCoordinateWatcherViewModel _coordinate = new GeoCoordinateWatcherViewModel();
         // Constructor
         public MainPage()
         {

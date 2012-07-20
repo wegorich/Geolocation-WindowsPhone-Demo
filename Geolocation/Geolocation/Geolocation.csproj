@@ -62,12 +62,13 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="MainPage.xaml.cs">
+    <Compile Include="Model\GeoCoordinateModel.cs" />
+    <Compile Include="View\MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Model\GeoCoordinateWatcherViewModel.cs" />
-    <Compile Include="Model\NotifyProperty.cs" />
-    <Compile Include="Model\NotifyPropertyChanged.cs" />
+    <Compile Include="ModelView\GeoCoordinateWatcherViewModel.cs" />
+    <Compile Include="ModelView\NotifyProperty.cs" />
+    <Compile Include="ModelView\NotifyPropertyChanged.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -75,7 +76,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </ApplicationDefinition>
-    <Page Include="MainPage.xaml">
+    <Page Include="View\MainPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

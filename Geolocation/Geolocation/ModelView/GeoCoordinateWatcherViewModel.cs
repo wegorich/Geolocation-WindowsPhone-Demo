@@ -1,27 +1,33 @@
 ﻿using System;
 using System.Device.Location;
+using Geolocation.Model;
 
-namespace Geolocation.Model
+namespace Geolocation.ModelView
 {
     public class GeoCoordinateWatcherViewModel : BaseNotifyPropertyChanged
     {
+        private GeoCoordinate _previewPos = new GeoCoordinate();
         private GeoCoordinateWatcher _coordinateWatcher;
+        private readonly GeoCoordinateModel _geo=new GeoCoordinateModel();
+
+        private bool _isCoordinateWatcherEnable;
+
+        private double _movementThreshold;
 
         #region Prop
-        private GeoPositionAccuracy _geoPositionAccuracy = GeoPositionAccuracy.High;
+
         public GeoPositionAccuracy GeoPositionAccuracy
         {
-            get { return _geoPositionAccuracy; }
+            get { return _geo.GeoPositionAccuracy; }
             set
             {
-                if (value == _geoPositionAccuracy) return;
+                if (value == _geo.GeoPositionAccuracy) return;
 
-                _geoPositionAccuracy = value;   //не работает если уже создали _coordinateWatcher 
+                _geo.GeoPositionAccuracy = value; //не работает если уже создали _coordinateWatcher 
                 NotifyPropertyChanged("GeoPositionAccuracy");
             }
         }
 
-        private double _movementThreshold = 20;
         public double MovementThreshold
         {
             get { return _movementThreshold; }
@@ -35,56 +41,60 @@ namespace Geolocation.Model
                     _coordinateWatcher.MovementThreshold = _movementThreshold;
                 }
                 NotifyPropertyChanged("MovementThreshold");
-
             }
         }
 
-        private GeoCoordinate _geoCoordinate;
         public GeoCoordinate GeoCoordinate
         {
-            get { return _geoCoordinate; }
+            get { return _geo.GeoCoordinate; }
             private set
             {
-                if (value == _geoCoordinate) return;
+                if (value == _geo.GeoCoordinate) return;
 
-                _geoCoordinate = value;
+                _geo.GeoCoordinate = value;
                 NotifyPropertyChanged("GeoCoordinate");
             }
         }
 
-        private DateTimeOffset? _timeStamp;
         public DateTimeOffset? TimeStamp
         {
-            get { return _timeStamp; }
+            get { return _geo.TimeStamp; }
             private set
             {
-                if (value == _timeStamp) return;
+                if (value == _geo.TimeStamp) return;
 
-                _timeStamp = value;
+                _geo.TimeStamp = value;
                 NotifyPropertyChanged("TimeStamp");
             }
         }
 
-        private GeoPositionStatus _status;
         public GeoPositionStatus Status
         {
-            get { return _status; }
+            get { return _geo.Status; }
             private set
             {
-                if (value == _status) return;
+                if (value == _geo.Status) return;
 
-                _status = value;
+                _geo.Status = value;
                 NotifyPropertyChanged("Status");
             }
         }
 
-        private bool _isCoordinateWatcherEnable;
+        public double Distance
+        {
+            get { return _geo.Distance; }
+            private set
+            {
+                if (Math.Abs(value - _geo.Distance) < 0.1) return;
+
+                _geo.Distance = value;
+                NotifyPropertyChanged("Distance");
+            }
+        }
+
         public bool IsCoordinateWatcherEnable
         {
-            get
-            {
-                return _isCoordinateWatcherEnable;
-            }
+            get { return _isCoordinateWatcherEnable; }
             set
             {
                 if (_isCoordinateWatcherEnable && value) return;
@@ -102,21 +112,24 @@ namespace Geolocation.Model
                 NotifyPropertyChanged("IsCoordinateWatcherEnable");
             }
         }
+
         #endregion
 
         #region GeoWather functions
+
         private void GeoWatherStart()
         {
             // The watcher variable was previously declared as type GeoCoordinateWatcher. 
             if (_coordinateWatcher == null)
             {
                 _coordinateWatcher = new GeoCoordinateWatcher(GeoPositionAccuracy); // using high accuracy
-                _coordinateWatcher.MovementThreshold = MovementThreshold; // use MovementThreshold to ignore noise in the signal
+                _coordinateWatcher.MovementThreshold = MovementThreshold;
+                // use MovementThreshold to ignore noise in the signal
                 _coordinateWatcher.StatusChanged += WatcherStatusChanged;
                 _coordinateWatcher.PositionChanged += WatcherPositionChanged;
             }
-
-            _coordinateWatcher.Start();
+            if (_coordinateWatcher.Permission == GeoPositionPermission.Granted)
+                _coordinateWatcher.Start();
         }
 
         // Event handler for the GeoCoordinateWatcher.StatusChanged event.
@@ -125,10 +138,20 @@ namespace Geolocation.Model
             Status = e.Status;
         }
 
-        void WatcherPositionChanged(object sender, GeoPositionChangedEventArgs<GeoCoordinate> e)
+        private void WatcherPositionChanged(object sender, GeoPositionChangedEventArgs<GeoCoordinate> e)
         {
-            GeoCoordinate= e.Position.Location;
-            TimeStamp = e.Position.Timestamp;
+            if (Status == GeoPositionStatus.Ready)
+            {
+                GeoCoordinate = e.Position.Location;
+                TimeStamp = e.Position.Timestamp;
+
+                if (!GeoCoordinate.IsUnknown && !_previewPos.IsUnknown)
+                {
+                    Distance += GeoCoordinate.GetDistanceTo(_previewPos);
+                }
+
+                _previewPos = GeoCoordinate;
+            }
         }
 
         private void GeoWatherStop()
@@ -137,6 +160,14 @@ namespace Geolocation.Model
 
             GeoCoordinate = null;
             TimeStamp = null;
+
+            if (_coordinateWatcher == null) return;
+
+            _coordinateWatcher.Stop();
+            _coordinateWatcher.StatusChanged += WatcherStatusChanged;
+            _coordinateWatcher.PositionChanged += WatcherPositionChanged;
+            _coordinateWatcher.Dispose();
+            _coordinateWatcher = null;
         }
 
         #endregion

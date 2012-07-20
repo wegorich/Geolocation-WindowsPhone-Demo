@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace Geolocation.Model
+namespace Geolocation.ModelView
 {
     public abstract class BaseNotifyPropertyChanged : INotifyPropertyChanged
     {
