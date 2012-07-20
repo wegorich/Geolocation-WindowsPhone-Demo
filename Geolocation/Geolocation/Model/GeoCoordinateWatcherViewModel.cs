@@ -5,80 +5,96 @@ namespace Geolocation.Model
 {
     public class GeoCoordinateWatcherViewModel : BaseNotifyPropertyChanged
     {
-        private GeoCoordinateWatcher _coordinateWatcher;
-
-        #region Prop
-        private GeoPositionAccuracy _geoPositionAccuracy = GeoPositionAccuracy.High;
+        #region Fields
+        
+        const double MovementTresholdEpsilon = 0.1;
+        
+        GeoCoordinateWatcher _coordinateWatcher;
+        
+        GeoPositionAccuracy _geoPositionAccuracy = GeoPositionAccuracy.High;
+        GeoCoordinate _geoCoordinate;
+        GeoPositionStatus _status;
+        
+        bool _isCoordinateWatcherEnable; 
+        double _movementThreshold = 20;
+        DateTimeOffset? _timeStamp;
+        
+        #endregion // Fields
+        
+        #region Properties
+        
         public GeoPositionAccuracy GeoPositionAccuracy
         {
             get { return _geoPositionAccuracy; }
             set
             {
-                if (value == _geoPositionAccuracy) return;
-
-                _geoPositionAccuracy = value;   //не работает если уже создали _coordinateWatcher 
-                NotifyPropertyChanged("GeoPositionAccuracy");
+                if (value != _geoPositionAccuracy)
+                {
+                    _geoPositionAccuracy = value;   // Не работает если уже создали _coordinateWatcher.
+                    NotifyPropertyChanged("GeoPositionAccuracy");
+                }
             }
         }
 
-        private double _movementThreshold = 20;
         public double MovementThreshold
         {
             get { return _movementThreshold; }
             set
             {
-                if (Math.Abs(value - _movementThreshold) < 0.1) return;
-
-                _movementThreshold = value;
-                if (_coordinateWatcher != null)
+                // Egor, fake Resharper. It works faster, then not inverted.
+                if (Math.Abs(value - _movementThreshold) >= MovementTresholdEpsilon)
                 {
-                    _coordinateWatcher.MovementThreshold = _movementThreshold;
+                    _movementThreshold = value;
+                    if (_coordinateWatcher != null)
+                    {
+                        _coordinateWatcher.MovementThreshold = _movementThreshold;
+                    }
+                
+                    NotifyPropertyChanged("MovementThreshold");
                 }
-                NotifyPropertyChanged("MovementThreshold");
-
             }
         }
-
-        private GeoCoordinate _geoCoordinate;
+        
         public GeoCoordinate GeoCoordinate
         {
             get { return _geoCoordinate; }
             private set
-            {
-                if (value == _geoCoordinate) return;
-
-                _geoCoordinate = value;
-                NotifyPropertyChanged("GeoCoordinate");
+            {                
+                if (value != _geoCoordinate) 
+                {
+                    _geoCoordinate = value;
+                    NotifyPropertyChanged("GeoCoordinate");
+                }
             }
         }
 
-        private DateTimeOffset? _timeStamp;
+        
         public DateTimeOffset? TimeStamp
         {
             get { return _timeStamp; }
             private set
             {
-                if (value == _timeStamp) return;
-
-                _timeStamp = value;
-                NotifyPropertyChanged("TimeStamp");
+                if (value != _timeStamp)
+                {
+                    _timeStamp = value;
+                    NotifyPropertyChanged("TimeStamp");
+                }
             }
         }
-
-        private GeoPositionStatus _status;
+        
         public GeoPositionStatus Status
         {
             get { return _status; }
             private set
             {
-                if (value == _status) return;
-
-                _status = value;
-                NotifyPropertyChanged("Status");
+                if (value != _status)
+                {
+                    _status = value;
+                    NotifyPropertyChanged("Status");
+                }
             }
         }
-
-        private bool _isCoordinateWatcherEnable;
+        
         public bool IsCoordinateWatcherEnable
         {
             get
@@ -93,19 +109,22 @@ namespace Geolocation.Model
 
                 if (_isCoordinateWatcherEnable)
                 {
-                    GeoWatherStart();
+                    GeoWatсherStart();
                 }
                 else
                 {
-                    GeoWatherStop();
+                    GeoWatсherStop();
                 }
+                
                 NotifyPropertyChanged("IsCoordinateWatcherEnable");
             }
         }
-        #endregion
+        
+        #endregion // Properties.
 
-        #region GeoWather functions
-        private void GeoWatherStart()
+        #region GeoWatcher functions
+        
+        private void GeoWatсherStart()
         {
             // The watcher variable was previously declared as type GeoCoordinateWatcher. 
             if (_coordinateWatcher == null)
@@ -119,6 +138,14 @@ namespace Geolocation.Model
             _coordinateWatcher.Start();
         }
 
+        зrivate void GeoWatсherStop()
+        {
+            _coordinateWatcher.Stop();
+
+            GeoCoordinate = null;
+            TimeStamp = null;
+        }
+        
         // Event handler for the GeoCoordinateWatcher.StatusChanged event.
         private void WatcherStatusChanged(object sender, GeoPositionStatusChangedEventArgs e)
         {
@@ -127,18 +154,10 @@ namespace Geolocation.Model
 
         void WatcherPositionChanged(object sender, GeoPositionChangedEventArgs<GeoCoordinate> e)
         {
-            GeoCoordinate= e.Position.Location;
+            GeoCoordinate = e.Position.Location;
             TimeStamp = e.Position.Timestamp;
         }
 
-        private void GeoWatherStop()
-        {
-            _coordinateWatcher.Stop();
-
-            GeoCoordinate = null;
-            TimeStamp = null;
-        }
-
-        #endregion
+        #endregion // GeoWatcher functions.
     }
 }
