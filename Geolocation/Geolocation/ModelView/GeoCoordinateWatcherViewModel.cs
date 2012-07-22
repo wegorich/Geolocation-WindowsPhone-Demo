@@ -9,12 +9,25 @@ namespace Geolocation.ModelView
         private GeoCoordinate _previewPos = new GeoCoordinate();
         private GeoCoordinateWatcher _coordinateWatcher;
         private readonly GeoCoordinateModel _geo=new GeoCoordinateModel();
-
+        
+        private MapViewModel _mapView=new MapViewModel();
+        
         private bool _isCoordinateWatcherEnable;
 
-        private double _movementThreshold;
+        private double _movementThreshold=1;
 
         #region Prop
+
+        public MapViewModel MapView
+        {
+            get { return _mapView; }
+            set
+            {
+                if (_mapView == value) return;
+                _mapView = value;
+                NotifyPropertyChanged("MapView");
+            }
+        }
 
         public GeoPositionAccuracy GeoPositionAccuracy
         {
@@ -144,6 +157,11 @@ namespace Geolocation.ModelView
             {
                 GeoCoordinate = e.Position.Location;
                 TimeStamp = e.Position.Timestamp;
+                
+                if(MapView!=null)
+                {
+                    MapView.UpdateMapView(GeoCoordinate.Longitude,GeoCoordinate.Latitude);
+                }
 
                 if (!GeoCoordinate.IsUnknown && !_previewPos.IsUnknown)
                 {

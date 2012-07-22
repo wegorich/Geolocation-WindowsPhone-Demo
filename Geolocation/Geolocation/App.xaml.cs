@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Windows;
 using System.Windows.Navigation;
+using Geolocation.ModelView;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
 
@@ -8,6 +9,7 @@ namespace Geolocation
 {
     public partial class App : Application
     {
+        public static GeoCoordinateWatcherViewModel ViewModel=new GeoCoordinateWatcherViewModel();
         /// <summary>
         /// Constructor for the Application object.
         /// </summary>
